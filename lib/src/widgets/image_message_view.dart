@@ -139,8 +139,11 @@ class ImageMessageView extends StatelessWidget {
                       child: Transform.translate(
                         offset: const Offset(0, -10),
                         child: Text(
-                          DateFormat.Hm().format(message.createdAt),
-                          style: const TextStyle(color: Colors.black),
+                          DateFormat("hh:mm a").format(
+                            message.createdAt,
+                          ),
+                          style: imageMessageConfig?.chatTime ??
+                              const TextStyle(color: Colors.black),
                         ),
                       ),
                     )

@@ -149,7 +149,10 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(DateFormat.Hm().format(widget.message.createdAt)),
+              child: Text(
+                DateFormat("hh:mm a").format(widget.message.createdAt),
+                style: widget.inComingChatBubbleConfig?.chatTime,
+              ),
             )
           ],
         ),

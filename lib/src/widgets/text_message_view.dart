@@ -95,31 +95,33 @@ class TextMessageView extends StatelessWidget {
                     url: textMessage,
                     time: message.createdAt,
                   )
-                : Column(
-                    crossAxisAlignment: isMessageBySender
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
+                : Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                        Text(
-                          textMessage,
-                          style: _textStyle ??
-                              textTheme.bodyMedium!.copyWith(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
+                        Flexible(
+                          child: Text(
+                            textMessage,
+                            softWrap: true,
+                            style: _textStyle ??
+                                textTheme.bodyMedium!.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                          ),
                         ),
-                        SizedBox(
-                            width: 30,
-                            child: FittedBox(
-                              child: Text(
-                                DateFormat("hh:mm").format(message.createdAt),
-                                style: _textStyle ??
-                                    textTheme.bodyMedium!.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                    ),
-                              ),
-                            ))
+                        FittedBox(
+                          child: Text(
+                            DateFormat("hh:mm a").format(message.createdAt),
+                            style: _chatTime ??
+                                textTheme.bodyMedium!.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                          ),
+                        )
                       ])),
         if (message.reaction.reactions.isNotEmpty)
           ReactionWidget(
@@ -147,7 +149,8 @@ class TextMessageView extends StatelessWidget {
   TextStyle? get _textStyle => isMessageBySender
       ? outgoingChatBubbleConfig?.textStyle
       : inComingChatBubbleConfig?.textStyle;
-
+  TextStyle? get _chatTime =>
+      inComingChatBubbleConfig?.chatTime ?? outgoingChatBubbleConfig?.chatTime;
   BorderRadiusGeometry _borderRadius(String message) => isMessageBySender
       ? outgoingChatBubbleConfig?.borderRadius ??
           (message.length < 37

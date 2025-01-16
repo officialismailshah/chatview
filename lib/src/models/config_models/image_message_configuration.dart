@@ -48,15 +48,19 @@ class ImageMessageConfiguration {
   /// Used for giving border radius of image message.
   final BorderRadius? borderRadius;
 
+  /// time color
+  final TextStyle? chatTime;
+
   const ImageMessageConfiguration({
-    this.hideShareIcon = false,
     this.shareIconConfig,
+    this.hideShareIcon = false,
     this.onTap,
     this.height,
     this.width,
     this.padding,
     this.margin,
     this.borderRadius,
+    this.chatTime,
   });
 }
 
