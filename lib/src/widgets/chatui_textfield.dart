@@ -24,6 +24,7 @@ import 'dart:io' show File, Platform;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:chatview/src/utils/constants/constants.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -265,6 +266,21 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
                                         ?.galleryIconColor,
                                   ),
                             ),
+                          if (sendMessageConfig?.enableGalleryImagePicker ??
+                              true)
+                            IconButton(
+                              constraints: const BoxConstraints(),
+                              onPressed: (textFieldConfig?.enabled ?? true)
+                                  ? () => pickedFile()
+                                  : null,
+                              icon: imagePickerIconsConfig
+                                      ?.galleryImagePickerIcon ??
+                                  Icon(
+                                    Icons.file_copy,
+                                    color: imagePickerIconsConfig
+                                        ?.galleryIconColor,
+                                  ),
+                            ),
                         ],
                         if ((sendMessageConfig?.allowRecordingVoice ?? false) &&
                             !kIsWeb &&
@@ -346,6 +362,18 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
       final path = await controller?.stop();
       isRecording.value = false;
       widget.onRecordingComplete(path);
+    }
+  }
+
+  void pickedFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      widget.onImageSelected(file.path, '');
+    } else {
+      widget.onImageSelected("", 'No File Picked');
+      // User canceled the picker
     }
   }
 

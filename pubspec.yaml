@@ -24,6 +24,7 @@ dependencies:
   any_link_preview: ^3.0.2
   image_picker: '>=0.8.9 <2.0.0'
   audio_waveforms: ^1.2.0
+  file_picker: ^8.1.7
   # For formatting time locale in message receipts
   cached_network_image: ^3.4.1
 
