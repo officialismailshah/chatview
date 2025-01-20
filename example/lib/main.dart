@@ -2,6 +2,7 @@ import 'package:chatview/chatview.dart';
 import 'package:example/data.dart';
 import 'package:example/models/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf_thumbnail/pdf_thumbnail.dart';
 
 void main() {
   runApp(const Example());
@@ -250,6 +251,15 @@ class _ChatScreenState extends State<ChatScreen> {
           backgroundColor: theme.reactionPopupColor,
         ),
         messageConfig: MessageConfiguration(
+          customMessageBuilder: (m) {
+            return SizedBox(
+                width: 200,
+                height: 200,
+                child: PdfThumbnail.fromFile(m.message.toString(),
+                    scrollToCurrentPage: false,
+                    backgroundColor: Colors.white,
+                    currentPage: 0));
+          },
           messageReactionConfig: MessageReactionConfiguration(
             backgroundColor: theme.messageReactionBackGroundColor,
             borderColor: theme.messageReactionBackGroundColor,

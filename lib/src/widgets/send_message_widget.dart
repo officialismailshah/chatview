@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 import 'dart:io' if (kIsWeb) 'dart:html';
-
 import 'package:chatview/chatview.dart';
 import 'package:chatview/src/extensions/extensions.dart';
 import 'package:chatview/src/utils/package_strings.dart';
@@ -257,6 +256,7 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                                 valueListenable: _replyMessage,
                               ),
                               ChatUITextField(
+                                documentSelected: _onDocumentSelected,
                                 focusNode: _focusNode,
                                 textEditingController: _textEditingController,
                                 onPressed: _onPressed,
@@ -288,6 +288,13 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
     if (imagePath.isNotEmpty) {
       widget.onSendTap.call(imagePath, replyMessage, MessageType.image);
       _assignRepliedMessage();
+    }
+  }
+
+  void _onDocumentSelected(String docPath, String error) {
+    debugPrint("Decoument Selected");
+    if (docPath.isNotEmpty) {
+      widget.onSendTap.call(docPath, replyMessage, MessageType.custom);
     }
   }
 

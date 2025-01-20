@@ -42,6 +42,7 @@ class ChatUITextField extends StatefulWidget {
     required this.onPressed,
     required this.onRecordingComplete,
     required this.onImageSelected,
+    required this.documentSelected,
   }) : super(key: key);
 
   /// Provides configuration of default text field in chat.
@@ -61,6 +62,8 @@ class ChatUITextField extends StatefulWidget {
 
   /// Provides callback when user select images from camera/gallery.
   final StringsCallBack onImageSelected;
+
+  final StringsCallBack documentSelected;
 
   @override
   State<ChatUITextField> createState() => _ChatUITextFieldState();
@@ -370,9 +373,9 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
 
     if (result != null) {
       File file = File(result.files.single.path!);
-      widget.onImageSelected(file.path, '');
+      widget.documentSelected(file.path, '');
     } else {
-      widget.onImageSelected("", 'No File Picked');
+      widget.documentSelected("", 'No File Picked');
       // User canceled the picker
     }
   }
