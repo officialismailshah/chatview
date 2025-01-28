@@ -175,6 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             backgroundColor: theme.backgroundColor,
+            width: double.infinity,
             backgroundImage:
                 "https://i.pinimg.com/originals/4b/0a/1e/4b0a1e7c5a43fc36ca55be631f36afff.jpg"),
         sendMessageConfig: SendMessageConfiguration(

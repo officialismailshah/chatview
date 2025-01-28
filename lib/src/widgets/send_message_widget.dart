@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 import 'dart:io' if (kIsWeb) 'dart:html';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatview/chatview.dart';
 import 'package:chatview/src/extensions/extensions.dart';
 import 'package:chatview/src/utils/package_strings.dart';
@@ -109,18 +110,27 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                   // This has been added to prevent messages from being
                   // displayed below the text field
                   // when the user scrolls the message list.
-                  // Positioned(
-                  //   right: 0,
-                  //   left: 0,
-                  //   bottom: 0,
-                  //   child: Container(
-                  //     height: MediaQuery.of(context).size.height /
-                  //         ((!kIsWeb && Platform.isIOS) ? 24 : 28),
-                  //     color:
-                  //         chatListConfig.chatBackgroundConfig.backgroundColor ??
-                  //             Colors.white,
-                  //   ),
-                  // ),
+                  Positioned(
+                    right: 0,
+                    left: 0,
+                    bottom: 0,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height /
+                          ((!kIsWeb && Platform.isIOS) ? 24 : 28),
+                      color:
+                          chatListConfig.chatBackgroundConfig.backgroundColor ??
+                              Colors.white,
+                      child:
+                          chatListConfig.chatBackgroundConfig.backgroundImage ==
+                                  null
+                              ? const SizedBox()
+                              : CachedNetworkImage(
+                                  imageUrl: chatListConfig
+                                      .chatBackgroundConfig.backgroundImage!,
+                                  fit: BoxFit.cover,
+                                ),
+                    ),
+                  ),
                   Positioned(
                     right: 0,
                     left: 0,

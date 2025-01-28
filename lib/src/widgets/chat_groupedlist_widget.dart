@@ -71,7 +71,6 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
   bool get showPopUp => widget.showPopUp;
 
   bool highlightMessage = false;
-  final ValueNotifier<String?> _replyId = ValueNotifier(null);
 
   AnimationController? _animationController;
   Animation<Offset>? _slideAnimation;
@@ -168,10 +167,24 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
                     ? AnimatedBuilder(
                         animation: _animationController!,
                         builder: (context, child) {
-                          return _chatStreamBuilder;
+                          return ChatStreamBuilder(
+                            slideAnimation: _slideAnimation,
+                            assignReplyMessage: widget.assignReplyMessage,
+                            onChatBubbleLongPress: widget.onChatBubbleLongPress,
+                            chatBackgroundConfiguration: chatBackgroundConfig,
+                            chatController: chatController,
+                            featureActiveConfig: featureActiveConfig,
+                          );
                         },
                       )
-                    : _chatStreamBuilder,
+                    : ChatStreamBuilder(
+                        slideAnimation: _slideAnimation,
+                        assignReplyMessage: widget.assignReplyMessage,
+                        onChatBubbleLongPress: widget.onChatBubbleLongPress,
+                        chatBackgroundConfiguration: chatBackgroundConfig,
+                        chatController: chatController,
+                        featureActiveConfig: featureActiveConfig,
+                      ),
               ),
               if (chatController != null)
                 ValueListenableBuilder(
@@ -203,6 +216,57 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
     );
   }
 
+  /// When user swipe at that time only animation is assigned with value.
+  void _onHorizontalDrag(DragUpdateDetails details) {
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.0),
+      end: const Offset(-0.2, 0.0),
+    ).animate(
+      CurvedAnimation(
+        curve: chatBackgroundConfig.messageTimeAnimationCurve,
+        parent: _animationController!,
+      ),
+    );
+
+    details.delta.dx > 1
+        ? _animationController?.reverse()
+        : _animationController?.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    // _replyId.dispose();
+    super.dispose();
+  }
+}
+
+class ChatStreamBuilder extends StatefulWidget {
+  const ChatStreamBuilder({
+    Key? key,
+    required this.featureActiveConfig,
+    required this.chatController,
+    required this.chatBackgroundConfiguration,
+    required this.assignReplyMessage,
+    this.slideAnimation,
+    required this.onChatBubbleLongPress,
+  }) : super(key: key);
+  final FeatureActiveConfig? featureActiveConfig;
+  final ChatController? chatController;
+  final ChatBackgroundConfiguration chatBackgroundConfiguration;
+  final MessageCallBack assignReplyMessage;
+  final Animation<Offset>? slideAnimation;
+
+  /// Provides callback when user press chat bubble for certain time then usual.
+  final void Function(double, double, Message) onChatBubbleLongPress;
+
+  @override
+  State<ChatStreamBuilder> createState() => _ChatStreamBuilderState();
+}
+
+class _ChatStreamBuilderState extends State<ChatStreamBuilder> {
+  final ValueNotifier<String?> _replyId = ValueNotifier(null);
+
   Future<void> _onReplyTap(String id, List<Message>? messages) async {
     // Finds the replied message if exists
     final repliedMessages = messages?.firstWhere((message) => id == message.id);
@@ -230,47 +294,101 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
     }
   }
 
-  /// When user swipe at that time only animation is assigned with value.
-  void _onHorizontalDrag(DragUpdateDetails details) {
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0),
-      end: const Offset(-0.2, 0.0),
-    ).animate(
-      CurvedAnimation(
-        curve: chatBackgroundConfig.messageTimeAnimationCurve,
-        parent: _animationController!,
-      ),
+  List<Message> sortMessage(List<Message> messages) {
+    final elements = [...messages];
+    elements.sort(
+      widget.chatBackgroundConfiguration.messageSorter ??
+          (a, b) => a.createdAt.compareTo(b.createdAt),
     );
+    if (widget.chatBackgroundConfiguration.groupedListOrder.isAsc) {
+      return elements.toList();
+    } else {
+      return elements.reversed.toList();
+    }
+  }
 
-    details.delta.dx > 1
-        ? _animationController?.reverse()
-        : _animationController?.forward();
+  /// return DateTime by checking lastMatchedDate and message created DateTime
+  DateTime _groupBy(
+    Message message,
+    DateTime lastMatchedDate,
+  ) {
+    /// If the conversation is ongoing on the same date,
+    /// return the same date [lastMatchedDate].
+
+    /// When the conversation starts on a new date,
+    /// we are returning new date [message.createdAt].
+    return lastMatchedDate.getDateFromDateTime ==
+            message.createdAt.getDateFromDateTime
+        ? lastMatchedDate
+        : message.createdAt;
+  }
+
+  Widget _groupSeparator(DateTime createdAt) {
+    return widget.featureActiveConfig?.enableChatSeparator ?? false
+        ? _GroupSeparatorBuilder(
+            separator: createdAt,
+            defaultGroupSeparatorConfig:
+                widget.chatBackgroundConfiguration.defaultGroupSeparatorConfig,
+            groupSeparatorBuilder:
+                widget.chatBackgroundConfiguration.groupSeparatorBuilder,
+          )
+        : const SizedBox.shrink();
+  }
+
+  GetMessageSeparator _getMessageSeparator(
+    List<Message> messages,
+    DateTime lastDate,
+  ) {
+    final messageSeparator = <int, DateTime>{};
+    var lastMatchedDate = lastDate;
+    var counter = 0;
+
+    /// Holds index and separator mapping to display in chat
+    for (var i = 0; i < messages.length; i++) {
+      if (messageSeparator.isEmpty) {
+        /// Separator for initial message
+        messageSeparator[0] = messages[0].createdAt;
+        continue;
+      }
+      lastMatchedDate = _groupBy(
+        messages[i],
+        lastMatchedDate,
+      );
+      var previousDate = _groupBy(
+        messages[i - 1],
+        lastMatchedDate,
+      );
+
+      if (previousDate != lastMatchedDate) {
+        /// Group separator when previous message and
+        /// current message time differ
+        counter++;
+
+        messageSeparator[i + counter] = messages[i].createdAt;
+      }
+    }
+
+    return (messageSeparator, lastMatchedDate);
   }
 
   @override
-  void dispose() {
-    _animationController?.dispose();
-    _replyId.dispose();
-    super.dispose();
-  }
-
-  Widget get _chatStreamBuilder {
+  Widget build(BuildContext context) {
     DateTime lastMatchedDate = DateTime.now();
     return StreamBuilder<List<Message>>(
-      stream: chatController?.messageStreamController.stream,
+      stream: widget.chatController?.messageStreamController.stream,
       builder: (context, snapshot) {
         if (!snapshot.connectionState.isActive) {
           return Center(
-            child: chatBackgroundConfig.loadingWidget ??
+            child: widget.chatBackgroundConfiguration.loadingWidget ??
                 const CircularProgressIndicator(),
           );
         } else {
-          final messages = chatBackgroundConfig.sortEnable
+          final messages = widget.chatBackgroundConfiguration.sortEnable
               ? sortMessage(snapshot.data!)
               : snapshot.data!;
 
           final enableSeparator =
-              featureActiveConfig?.enableChatSeparator ?? false;
+              widget.featureActiveConfig?.enableChatSeparator ?? false;
 
           Map<int, DateTime> messageSeparator = {};
 
@@ -321,7 +439,7 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
                   return ChatBubbleWidget(
                     key: message.key,
                     message: message,
-                    slideAnimation: _slideAnimation,
+                    slideAnimation: widget.slideAnimation,
                     onLongPress: (yCoordinate, xCoordinate) =>
                         widget.onChatBubbleLongPress(
                       yCoordinate,
@@ -341,82 +459,6 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
         }
       },
     );
-  }
-
-  List<Message> sortMessage(List<Message> messages) {
-    final elements = [...messages];
-    elements.sort(
-      chatBackgroundConfig.messageSorter ??
-          (a, b) => a.createdAt.compareTo(b.createdAt),
-    );
-    if (chatBackgroundConfig.groupedListOrder.isAsc) {
-      return elements.toList();
-    } else {
-      return elements.reversed.toList();
-    }
-  }
-
-  /// return DateTime by checking lastMatchedDate and message created DateTime
-  DateTime _groupBy(
-    Message message,
-    DateTime lastMatchedDate,
-  ) {
-    /// If the conversation is ongoing on the same date,
-    /// return the same date [lastMatchedDate].
-
-    /// When the conversation starts on a new date,
-    /// we are returning new date [message.createdAt].
-    return lastMatchedDate.getDateFromDateTime ==
-            message.createdAt.getDateFromDateTime
-        ? lastMatchedDate
-        : message.createdAt;
-  }
-
-  Widget _groupSeparator(DateTime createdAt) {
-    return featureActiveConfig?.enableChatSeparator ?? false
-        ? _GroupSeparatorBuilder(
-            separator: createdAt,
-            defaultGroupSeparatorConfig:
-                chatBackgroundConfig.defaultGroupSeparatorConfig,
-            groupSeparatorBuilder: chatBackgroundConfig.groupSeparatorBuilder,
-          )
-        : const SizedBox.shrink();
-  }
-
-  GetMessageSeparator _getMessageSeparator(
-    List<Message> messages,
-    DateTime lastDate,
-  ) {
-    final messageSeparator = <int, DateTime>{};
-    var lastMatchedDate = lastDate;
-    var counter = 0;
-
-    /// Holds index and separator mapping to display in chat
-    for (var i = 0; i < messages.length; i++) {
-      if (messageSeparator.isEmpty) {
-        /// Separator for initial message
-        messageSeparator[0] = messages[0].createdAt;
-        continue;
-      }
-      lastMatchedDate = _groupBy(
-        messages[i],
-        lastMatchedDate,
-      );
-      var previousDate = _groupBy(
-        messages[i - 1],
-        lastMatchedDate,
-      );
-
-      if (previousDate != lastMatchedDate) {
-        /// Group separator when previous message and
-        /// current message time differ
-        counter++;
-
-        messageSeparator[i + counter] = messages[i].createdAt;
-      }
-    }
-
-    return (messageSeparator, lastMatchedDate);
   }
 }
 
