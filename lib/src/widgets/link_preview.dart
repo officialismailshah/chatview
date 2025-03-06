@@ -118,7 +118,7 @@ class LinkPreview extends StatelessWidget {
                     width: 30,
                     child: FittedBox(
                       child: Text(
-                        DateFormat.Hm().format(time),
+                        DateFormat("hh:mm a").format(time),
                         style: const TextStyle(
                           color: Colors.black,
                         ),
