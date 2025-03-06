@@ -94,6 +94,7 @@ class TextMessageView extends StatelessWidget {
                     linkPreviewConfig: _linkPreviewConfig,
                     url: textMessage,
                     time: message.createdAt,
+                    timeStyle: _chatTime,
                   )
                 : Row(
                     spacing: 5,

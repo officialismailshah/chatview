@@ -29,12 +29,13 @@ import '../utils/constants/constants.dart';
 import 'package:intl/intl.dart';
 
 class LinkPreview extends StatelessWidget {
-  const LinkPreview({
-    Key? key,
-    required this.url,
-    this.linkPreviewConfig,
-    required this.time,
-  }) : super(key: key);
+  const LinkPreview(
+      {Key? key,
+      required this.url,
+      this.linkPreviewConfig,
+      required this.time,
+      this.timeStyle})
+      : super(key: key);
 
   /// Provides url which is passed in message.
   final String url;
@@ -46,6 +47,7 @@ class LinkPreview extends StatelessWidget {
   /// to get time
 
   final DateTime time;
+  final TextStyle? timeStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -114,14 +116,9 @@ class LinkPreview extends StatelessWidget {
               ),
               Align(
                   alignment: Alignment.bottomRight,
-                  child: SizedBox(
-                    width: 30,
-                    child: Text(
-                      DateFormat("hh:mm a").format(time),
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
+                  child: Text(
+                    DateFormat("hh:mm a").format(time),
+                    style: timeStyle,
                   ))
             ],
           )
