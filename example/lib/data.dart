@@ -59,17 +59,17 @@ class Data {
       message: "https://bit.ly/3JHS2Wl",
       createdAt: DateTime.now(),
       sentBy: '2',
-      reaction: Reaction(
-        reactions: ['\u{2764}', '\u{1F44D}', '\u{1F44D}'],
-        reactedUserIds: ['2', '3', '4'],
-      ),
-      status: MessageStatus.read,
-      replyMessage: const ReplyMessage(
-        message: "Can you write the time and place of the meeting?",
-        replyTo: '1',
-        replyBy: '2',
-        messageId: '4',
-      ),
+      // reaction: Reaction(
+      //   reactions: ['\u{2764}', '\u{1F44D}', '\u{1F44D}'],
+      //   reactedUserIds: ['2', '3', '4'],
+      // ),
+      // status: MessageStatus.read,
+      // replyMessage: const ReplyMessage(
+      //   message: "Can you write the time and place of the meeting?",
+      //   replyTo: '1',
+      //   replyBy: '2',
+      //   messageId: '4',
+      // ),
     ),
     Message(
       id: '9',
@@ -99,11 +99,10 @@ class Data {
     ),
     Message(
       id: '11',
-      message: "https://miro.medium.com/max/1000/0*s7of7kWnf9fDg4XM.jpeg",
+      message: "https://attach.wappz.online/1/Customer/12/Attachments/686f7909.jpg",
       createdAt: DateTime.now(),
       messageType: MessageType.image,
       sentBy: '1',
-      reaction: Reaction(reactions: ['\u{2764}'], reactedUserIds: ['2']),
       status: MessageStatus.read,
     ),
     Message(

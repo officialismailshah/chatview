@@ -88,7 +88,7 @@ class ImageMessageView extends StatelessWidget {
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: Container(
-                  margin: const EdgeInsets.all(1),
+                  margin: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       color: isMessageBySender
                           ? const Color(0xffD9FDD3)
@@ -96,6 +96,7 @@ class ImageMessageView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    spacing: 5,
                     children: [
                       Container(
                         padding: imageMessageConfig?.padding ?? EdgeInsets.zero,
@@ -117,7 +118,7 @@ class ImageMessageView extends StatelessWidget {
                             if (imageUrl.isUrl) {
                               return CachedNetworkImage(
                                 imageUrl: imageUrl,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.fitHeight,
                                 errorWidget: (context, v, n) {
                                   return const Icon(Icons.error);
                                 },
