@@ -87,67 +87,76 @@ class ImageMessageView extends StatelessWidget {
                 alignment: isMessageBySender
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: imageMessageConfig?.padding ?? EdgeInsets.zero,
-                      margin: imageMessageConfig?.margin ??
-                          EdgeInsets.only(
-                            top: 6,
-                            right: isMessageBySender ? 6 : 0,
-                            left: isMessageBySender ? 0 : 6,
-                            bottom:
-                                message.reaction.reactions.isNotEmpty ? 15 : 0,
-                          ),
-                      height: imageMessageConfig?.height ?? 200,
-                      width: imageMessageConfig?.width ?? 150,
-                      child: ClipRRect(
-                        borderRadius: imageMessageConfig?.borderRadius ??
-                            BorderRadius.circular(14),
-                        child: (() {
-                          if (imageUrl.isUrl) {
-                            return CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.fitHeight,
-                              errorWidget: (context, v, n) {
-                                return const Icon(Icons.error);
-                              },
-                              placeholder: (context, child) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },
-                            );
-                          } else if (imageUrl.fromMemory) {
-                            return Image.memory(
-                              base64Decode(imageUrl
-                                  .substring(imageUrl.indexOf('base64') + 7)),
-                              fit: BoxFit.fill,
-                            );
-                          } else {
-                            return Image.file(
-                              File(imageUrl),
-                              fit: BoxFit.fill,
-                            );
-                          }
-                        }()),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Transform.translate(
-                        offset: const Offset(0, -10),
-                        child: Text(
-                          DateFormat("hh:mm a").format(
-                            message.createdAt,
-                          ),
-                          style: imageMessageConfig?.chatTime ??
-                              const TextStyle(color: Colors.black),
+                child: Container(
+                  margin: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                      color: isMessageBySender
+                          ? const Color(0xffD9FDD3)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: imageMessageConfig?.padding ?? EdgeInsets.zero,
+                        margin: imageMessageConfig?.margin ??
+                            EdgeInsets.only(
+                              top: 6,
+                              right: isMessageBySender ? 6 : 0,
+                              left: isMessageBySender ? 0 : 6,
+                              bottom: message.reaction.reactions.isNotEmpty
+                                  ? 15
+                                  : 0,
+                            ),
+                        height: imageMessageConfig?.height ?? 200,
+                        width: imageMessageConfig?.width ?? 150,
+                        child: ClipRRect(
+                          borderRadius: imageMessageConfig?.borderRadius ??
+                              BorderRadius.circular(14),
+                          child: (() {
+                            if (imageUrl.isUrl) {
+                              return CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                errorWidget: (context, v, n) {
+                                  return const Icon(Icons.error);
+                                },
+                                placeholder: (context, child) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
+                              );
+                            } else if (imageUrl.fromMemory) {
+                              return Image.memory(
+                                base64Decode(imageUrl
+                                    .substring(imageUrl.indexOf('base64') + 7)),
+                                fit: BoxFit.fill,
+                              );
+                            } else {
+                              return Image.file(
+                                File(imageUrl),
+                                fit: BoxFit.fill,
+                              );
+                            }
+                          }()),
                         ),
                       ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Transform.translate(
+                          offset: const Offset(0, -10),
+                          child: Text(
+                            DateFormat("hh:mm a").format(
+                              message.createdAt,
+                            ),
+                            style: imageMessageConfig?.chatTime ??
+                                const TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
